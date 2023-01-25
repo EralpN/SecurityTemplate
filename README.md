@@ -19,7 +19,7 @@ This project uses the following dependencies:
 * [Spring Boot Starter Validation](https://github.com/spring-projects/spring-boot/blob/main/spring-boot-project/spring-boot-starters/spring-boot-starter-validation/build.gradle)
 * [Lombok](https://projectlombok.org/)
 * [JJWT (Java JWT: JSON Web Token for Java and Android)](https://github.com/jwtk/jjwt)
-* [PostgresSQL](https://www.postgresql.org/) (I have used postgresql but you can use any database you want.)
+* [PostgresSQL](https://www.postgresql.org/) (I have used postgresql, but you can use any database you want.)
 
 ### How to use
 To use this template, simply clone the repository and customize it to fit your needs.
@@ -33,3 +33,8 @@ You may find the following resources helpful:
 
 * [Spring Boot Docs](https://spring.io/projects/spring-boot)
 * [Spring Security Docs](https://spring.io/projects/spring-security)
+
+### Contact Me
+
+* [Linkedin](https://www.linkedin.com/in/eralpnitelik/)
+* [Github](https://github.com/EralpN)
