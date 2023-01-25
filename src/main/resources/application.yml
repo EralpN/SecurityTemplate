@@ -1,0 +1,22 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+spring:
+  datasource:
+    # CHANGE THESE WITH YOUR OWN SETTINGS!!!
+    url: jdbc:postgresql://localhost:5432/SecurityDB
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        format_sql: true
+jwt:
+  # CHANGE THIS IN YOUR OWN APPLICATION!!!
+  secret: 546A576E5A7234753778214125442A472D4B6150645367566B58703273357638
