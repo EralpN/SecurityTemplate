@@ -1,9 +1,9 @@
 package com.eralp.services;
 
 import com.eralp.configuration.jwt.JwtService;
-import com.eralp.dto.request.AuthenticationRequest;
-import com.eralp.dto.request.RegisterRequest;
-import com.eralp.dto.response.AuthenticationResponse;
+import com.eralp.dto.request.AuthenticationRequestDto;
+import com.eralp.dto.request.RegisterRequestDto;
+import com.eralp.dto.response.AuthenticationResponseDto;
 import com.eralp.entities.Auth;
 import com.eralp.entities.enums.Role;
 import com.eralp.exceptions.custom.UserAlreadyExistsException;
@@ -37,12 +37,12 @@ public class AuthService {
     /**
      * Registers a new user.
      *
-     * @param request {@link RegisterRequest} object containing the information
-     * @return {@link AuthenticationResponse} object with a generated token for the newly registered user
+     * @param request {@link RegisterRequestDto} object containing the information
+     * @return {@link AuthenticationResponseDto} object with a generated token for the newly registered user
      * @author Eralp Nitelik
      */
     @Transactional
-    public AuthenticationResponse register(RegisterRequest request) {
+    public AuthenticationResponseDto register(RegisterRequestDto request) {
         if (authRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("Email already registered.");
         }
@@ -52,7 +52,7 @@ public class AuthService {
                 .roles(Set.of(Role.USER))
                 .build());
         log.info("{} registered.", auth.getUsername());
-        return AuthenticationResponse.builder()
+        return AuthenticationResponseDto.builder()
                 .token(jwtService.generateToken(auth))
                 .build();
     }
@@ -60,11 +60,11 @@ public class AuthService {
     /**
      * Authenticate based on information. (Login)
      *
-     * @param request {@link AuthenticationRequest} object containing the login information
-     * @return {@link AuthenticationResponse} object with a generated token
+     * @param request {@link AuthenticationRequestDto} object containing the login information
+     * @return {@link AuthenticationResponseDto} object with a generated token
      * @author Eralp Nitelik
      */
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponseDto authenticate(AuthenticationRequestDto request) {
         Optional<Auth> user = authRepository.findByEmail(request.getEmail());
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("Username does not exist.");
@@ -76,7 +76,7 @@ public class AuthService {
                 )
         );
         log.info("{} authenticated.", user.get().getUsername());
-        return AuthenticationResponse.builder()
+        return AuthenticationResponseDto.builder()
                 .token(jwtService.generateToken(user.get()))
                 .build();
     }

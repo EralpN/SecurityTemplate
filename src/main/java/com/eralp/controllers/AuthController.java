@@ -1,10 +1,11 @@
 package com.eralp.controllers;
 
-import com.eralp.dto.request.AuthenticationRequest;
-import com.eralp.dto.request.RegisterRequest;
-import com.eralp.dto.response.AuthenticationResponse;
+import com.eralp.dto.ApiResponse;
+import com.eralp.dto.request.AuthenticationRequestDto;
+import com.eralp.dto.request.RegisterRequestDto;
+import com.eralp.dto.response.AuthenticationResponseDto;
+import com.eralp.exceptions.validators.DtoValidator;
 import com.eralp.services.AuthService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,29 +22,33 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
+    private final ApiResponse apiResponse;
     private final AuthService authService;
+    private final DtoValidator validator;
 
     /**
      * This method handles user registration requests.
      *
-     * @param request  The {@link RegisterRequest} object containing the user's registration information
-     * @return a {@link ResponseEntity} with an {@link AuthenticationResponse} object that contains the token
+     * @param request The {@link RegisterRequestDto} object containing the user's registration information
+     * @return an {@link ApiResponse} with an {@link AuthenticationResponseDto} object that contains the token inside {@link ResponseEntity}
      * @author Eralp Nitelik
      */
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody @Valid RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequestDto request) {
+        validator.validate(request);
+        return apiResponse.createOkResponse(authService.register(request));
     }
 
     /**
      * This method handles user authentication requests.
      *
-     * @param request The {@link AuthenticationRequest} object containing the user's authentication information
-     * @return a {@link ResponseEntity} with an {@link AuthenticationResponse} object that contains the token
+     * @param request The {@link AuthenticationRequestDto} object containing the user's authentication information
+     * @return an {@link ApiResponse} with an {@link AuthenticationResponseDto} object that contains the token inside {@link ResponseEntity}
      * @author Eralp Nitelik
      */
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody @Valid AuthenticationRequest request) {
-        return ResponseEntity.ok(authService.authenticate(request));
+    public ResponseEntity<ApiResponse> authenticate(@RequestBody AuthenticationRequestDto request) {
+        validator.validate(request);
+        return apiResponse.createOkResponse(authService.authenticate(request));
     }
 }

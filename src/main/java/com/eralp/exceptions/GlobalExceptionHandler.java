@@ -1,6 +1,9 @@
 package com.eralp.exceptions;
 
+import com.eralp.dto.ApiResponse;
+import com.eralp.exceptions.custom.RequestNotValidException;
 import com.eralp.exceptions.custom.UserAlreadyExistsException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,69 +17,82 @@ import static com.eralp.exceptions.ExceptionType.*;
 
 /**
  * This class is a global exception handler. It is responsible for handling exceptions thrown by the application's REST controllers.
- * Each exception handler method takes a single argument,
- * an instance of the exception being handled,
- * and returns a {@link ResponseEntity} containing an {@link ExceptionResponse} object.
+ * Each exception handler method returns an {@link ApiResponse} containing an {@link ExceptionData} object inside of {@link ResponseEntity}.
  *
  * @author Eralp Nitelik
  */
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+    private final ApiResponse apiResponse;
 
     @ResponseBody
     @ExceptionHandler(Exception.class)
-    public final ResponseEntity<ExceptionResponse> handleAllExceptions(Exception exception) {
+    public final ResponseEntity<ApiResponse> handleAllExceptions(Exception exception) {
         log.error("Unhandled error occurred!", exception);
-        return createExceptionInfoResponse(UNEXPECTED_ERROR);
+        return createExceptionResponse(UNEXPECTED_ERROR, exception);
     }
 
     @ResponseBody
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ExceptionResponse> handleRuntimeException(RuntimeException exception) {
+    public ResponseEntity<ApiResponse> handleRuntimeException(RuntimeException exception) {
         log.error("Unhandled runtime error occurred!", exception);
-        return createExceptionInfoResponse(UNEXPECTED_ERROR);
+        return createExceptionResponse(UNEXPECTED_ERROR, exception);
     }
 
     @ResponseBody
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleRuntimeException(UsernameNotFoundException exception) {
-        log.warn("Auth does not exist or deleted.", exception);
-        return createExceptionInfoResponse(LOGIN_ERROR_USERNAME_DOES_NOT_EXIST);
+    public ResponseEntity<ApiResponse> handleRuntimeException(UsernameNotFoundException exception) {
+        log.warn("Auth does not exist or deleted. {}", exception.getMessage());
+        return createExceptionResponse(LOGIN_ERROR_USERNAME_DOES_NOT_EXIST, exception);
     }
 
     @ResponseBody
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ExceptionResponse> handleBadCredentialsException(BadCredentialsException exception) {
+    public ResponseEntity<ApiResponse> handleBadCredentialsException(BadCredentialsException exception) {
         log.warn("Authentication information does not match. {}", exception.getMessage());
-        return createExceptionInfoResponse(LOGIN_ERROR_WRONG_PASSWORD);
+        return createExceptionResponse(LOGIN_ERROR_WRONG_PASSWORD, exception);
     }
 
     @ResponseBody
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ExceptionResponse> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
+    public ResponseEntity<ApiResponse> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
         log.warn("Unique key already exists on database. {}", exception.getMessage());
-        return createExceptionInfoResponse(REGISTER_ERROR_DATA_EXISTS);
+        return createExceptionResponse(REGISTER_ERROR_DATA_EXISTS, exception);
     }
 
+    // default validation exception
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+    public ResponseEntity<ApiResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         log.warn("Incoming data validation failed. {}", exception.getMessage());
-        return createExceptionInfoResponse(DATA_NOT_VALID);
+        return createExceptionResponse(DATA_NOT_VALID, exception);
+    }
+
+    // custom validation exception
+    @ResponseBody
+    @ExceptionHandler(RequestNotValidException.class)
+    public ResponseEntity<ApiResponse> handleRequestNotValidException(RequestNotValidException exception) {
+        log.warn("Incoming data validation failed. {}", exception.getMessage());
+        return createExceptionResponse(DATA_NOT_VALID, exception);
     }
 
     /**
-     * This method helps cast predefined {@link ExceptionType}'s to {@link ExceptionResponse} so they can be sent to client.
+     * This method helps cast predefined {@link ExceptionType}'s to {@link ExceptionData} so they can be sent to client.
      *
      * @param exceptionType the predefined exception
-     * @return A new {@link ResponseEntity} with {@link ExceptionResponse} as its body
+     * @return A new {@link ResponseEntity} with {@link ExceptionData} as its body
      */
-    private ResponseEntity<ExceptionResponse> createExceptionInfoResponse(ExceptionType exceptionType) {
-        return new ResponseEntity<>(ExceptionResponse.builder()
-                .exceptionCode(exceptionType.getCode())
-                .customMessage(exceptionType.getMessage())
-                .httpStatus(exceptionType.getHttpStatus().value())
-                .build(), exceptionType.getHttpStatus());
+    private ResponseEntity<ApiResponse> createExceptionResponse(ExceptionType exceptionType, Exception exception) {
+        return apiResponse
+                .createErrorResponse(
+                        exceptionType,
+                        ExceptionData.builder()
+                                .exceptionCode(exceptionType.getCode())
+                                .defaultMessage(exceptionType.getMessage())
+                                .errorMessage(exception.getMessage())
+                                .build()
+                );
     }
 }

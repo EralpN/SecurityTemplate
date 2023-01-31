@@ -1,5 +1,7 @@
 package com.eralp.controllers.test;
 
+import com.eralp.dto.ApiResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,24 +15,27 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/test")
+@RequiredArgsConstructor
 public class TestController {
+    private final ApiResponse apiResponse;
+
     @GetMapping
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Test successful!");
+    public ResponseEntity<ApiResponse> test() {
+        return apiResponse.createOkResponse("Test successful!");
     }
 
     @GetMapping("/user")
-    public ResponseEntity<String> testUser() {
-        return ResponseEntity.ok("User test successful!");
+    public ResponseEntity<ApiResponse> testUser() {
+        return apiResponse.createOkResponse("User test successful!");
     }
 
     @GetMapping("/manager")
-    public ResponseEntity<String> testManager() {
-        return ResponseEntity.ok("Manager test successful!");
+    public ResponseEntity<ApiResponse> testManager() {
+        return apiResponse.createOkResponse("Manager test successful!");
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<String> testAdmin() {
-        return ResponseEntity.ok("Admin test successful!");
+    public ResponseEntity<ApiResponse> testAdmin() {
+        return apiResponse.createOkResponse("Admin test successful!");
     }
 }

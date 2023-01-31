@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-public class ExceptionResponse {
+public class ExceptionData {
     private int exceptionCode;
-    private String customMessage;
-    private int httpStatus;
+    private String defaultMessage;
+    private String errorMessage;
 }

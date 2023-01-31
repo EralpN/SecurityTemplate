@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * The class {@link AuthenticationResponse} is used to return a token to the client after a successful authentication.
+ * The class {@link AuthenticationResponseDto} is used to return a token to the client after a successful authentication.
  *
  * @author Eralp Nitelik
  */
@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuthenticationResponse {
+public class AuthenticationResponseDto {
     private String token;
 }

@@ -19,15 +19,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuthenticationRequest {
-    @Size(min = 3, message = "Email must be valid.")
-    @Email(message = "Email must be valid.")
-    @NotBlank(message = "Email must be valid.")
-    @NotNull(message = "Email must be valid.")
+public class AuthenticationRequestDto {
+    @Size(min = 3, message = "Email must have at least 3 characters")
+    @Email(message = "Email must be valid")
+    @NotBlank(message = "Email must not be blank")
+    @NotNull(message = "Email field is required")
     private String email;
 
-    @Size(min = 8, max = 256, message = "Password should have at least 8 characters")
-    @NotBlank(message = "Password must be valid.")
-    @NotNull(message = "Password must be valid.")
+    @Size(min = 8, max = 256, message = "Password should be between 8 and 256 characters")
+    @NotBlank(message = "Password must not be blank")
+    @NotNull(message = "Password field is required")
     private String password;
 }
