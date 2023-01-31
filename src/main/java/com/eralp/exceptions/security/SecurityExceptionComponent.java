@@ -1,4 +1,4 @@
-package com.eralp.exceptions;
+package com.eralp.exceptions.security;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,9 +27,13 @@ public class SecurityExceptionComponent implements AuthenticationEntryPoint, Acc
 
     private final HandlerExceptionResolver handlerExceptionResolver;
 
-    @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        handlerExceptionResolver.resolveException(request, response, null, authException);
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            handlerExceptionResolver.resolveException(request, response, null, authException);
+            return;
+        }
+        handlerExceptionResolver.resolveException(request, response, null, new AccessDeniedException("Must authenticate to access this resource."));
     }
 
     @Override

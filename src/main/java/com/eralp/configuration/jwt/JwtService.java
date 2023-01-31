@@ -89,7 +89,7 @@ public class JwtService {
      * @return true if the token has not expired, false otherwise
      * @author Eralp Nitelik
      */
-    private boolean isTokenNotExpired(String jwtToken) {
+    public boolean isTokenNotExpired(String jwtToken) {
         return extractExpiration(jwtToken).after(new Date());
     }
 

@@ -1,7 +1,8 @@
 package com.eralp.configuration;
 
 import com.eralp.configuration.jwt.JwtAuthFilter;
-import com.eralp.exceptions.SecurityExceptionComponent;
+import com.eralp.exceptions.security.FilterChainExceptionHandler;
+import com.eralp.exceptions.security.SecurityExceptionComponent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 /**
  * This class is used to configure the security settings of the application.
@@ -25,6 +27,7 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final SecurityExceptionComponent securityExceptionComponent;
+    private final FilterChainExceptionHandler filterChainExceptionHandler;
 
     /**
      * This method creates a Bean of type {@link SecurityFilterChain}.
@@ -67,6 +70,8 @@ public class SecurityConfig {
                 .exceptionHandling()
                 .authenticationEntryPoint(securityExceptionComponent)
                 .and()
+                // adds an exception handling filter at a higher level
+                .addFilterBefore(filterChainExceptionHandler, LogoutFilter.class)
                 // to execute our custom filter before UsernamePasswordAuthenticationFilter, this allows us to set securityContext with our filter.
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();

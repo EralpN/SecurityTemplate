@@ -41,6 +41,7 @@ public enum ExceptionType {
     LOGIN_ERROR_WRONG_PASSWORD(2002, "Wrong password.", BAD_REQUEST),
     ACCESS_PRIVILEGE_INSUFFICIENT(2003, "Insufficient privileges to access this resource.", FORBIDDEN),
     AUTHORIZATION_REQUIRED(2004, "Authorization required to access this resource.", UNAUTHORIZED),
+    INVALID_TOKEN_DETECTED(2005, "Invalid token.", BAD_REQUEST),
 
     /*
         Register errors.

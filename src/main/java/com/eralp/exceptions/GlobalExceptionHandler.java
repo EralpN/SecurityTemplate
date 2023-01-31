@@ -3,6 +3,7 @@ package com.eralp.exceptions;
 import com.eralp.dto.ApiResponse;
 import com.eralp.exceptions.custom.RequestNotValidException;
 import com.eralp.exceptions.custom.UserAlreadyExistsException;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -102,6 +103,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException exception) {
         log.warn("Authorization required to access this resource. {}", exception.getMessage());
         return createExceptionResponse(AUTHORIZATION_REQUIRED, exception);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ApiResponse> handleMalformedJwtException(JwtException exception) {
+        log.warn("Invalid token. {}", exception.getMessage());
+        return createExceptionResponse(INVALID_TOKEN_DETECTED, exception);
     }
 
     /**
