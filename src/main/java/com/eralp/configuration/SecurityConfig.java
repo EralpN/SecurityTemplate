@@ -1,6 +1,7 @@
 package com.eralp.configuration;
 
 import com.eralp.configuration.jwt.JwtAuthFilter;
+import com.eralp.exceptions.SecurityExceptionComponent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final SecurityExceptionComponent securityExceptionComponent;
 
     /**
      * This method creates a Bean of type {@link SecurityFilterChain}.
@@ -61,6 +63,10 @@ public class SecurityConfig {
                 .and()
                 // show spring which authentication provider to use.
                 .authenticationProvider(authenticationProvider)
+                // handle security/authentication exceptions
+                .exceptionHandling()
+                .authenticationEntryPoint(securityExceptionComponent)
+                .and()
                 // to execute our custom filter before UsernamePasswordAuthenticationFilter, this allows us to set securityContext with our filter.
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();

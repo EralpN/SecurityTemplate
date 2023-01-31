@@ -6,7 +6,10 @@ import com.eralp.exceptions.custom.UserAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -78,11 +81,34 @@ public class GlobalExceptionHandler {
         return createExceptionResponse(DATA_NOT_VALID, exception);
     }
 
+    // security exceptions can be handled here thanks to
+    // HandlerExceptionResolver being injected to AuthenticationEntryPoint and AccessDeniedHandler
+    @ResponseBody
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse> handleAllAuthenticationException(AuthenticationException exception) {
+        log.error("Insufficient privileges to access this resource.", exception);
+        return createExceptionResponse(UNEXPECTED_AUTHENTICATION_ERROR, exception);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(InsufficientAuthenticationException.class)
+    public ResponseEntity<ApiResponse> handleInsufficientAuthenticationException(InsufficientAuthenticationException exception) {
+        log.warn("Insufficient privileges to access this resource. {}", exception.getMessage());
+        return createExceptionResponse(ACCESS_PRIVILEGE_INSUFFICIENT, exception);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException exception) {
+        log.warn("Authorization required to access this resource. {}", exception.getMessage());
+        return createExceptionResponse(AUTHORIZATION_REQUIRED, exception);
+    }
+
     /**
-     * This method helps cast predefined {@link ExceptionType}'s to {@link ExceptionData} so they can be sent to client.
+     * This method helps cast predefined {@link ExceptionType}'s to {@link ExceptionData} so they can be sent to client inside of {@link ApiResponse}.
      *
      * @param exceptionType the predefined exception
-     * @return A new {@link ResponseEntity} with {@link ExceptionData} as its body
+     * @return A new {@link ApiResponse} with {@link ExceptionData} as its error field
      */
     private ResponseEntity<ApiResponse> createExceptionResponse(ExceptionType exceptionType, Exception exception) {
         return apiResponse

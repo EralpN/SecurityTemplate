@@ -20,7 +20,7 @@ public enum ExceptionType {
     /*
         Unknown errors.
      */
-    UNEXPECTED_ERROR(9000, "Unexpected Error! Please submit a report.", INTERNAL_SERVER_ERROR),
+    UNEXPECTED_ERROR(9000, "Unexpected Error! Please submit a bug report.", INTERNAL_SERVER_ERROR),
 
     /*
         General errors.
@@ -36,8 +36,11 @@ public enum ExceptionType {
     /*
         Authentication errors.
      */
-    LOGIN_ERROR_USERNAME_DOES_NOT_EXIST(2001, "Username does not exist.", NOT_FOUND),
+    UNEXPECTED_AUTHENTICATION_ERROR(2000, "Unexpected Authentication Error! Please submit a bug report.", INTERNAL_SERVER_ERROR),
+    LOGIN_ERROR_USERNAME_DOES_NOT_EXIST(2001, "Username does not exist.", BAD_REQUEST),
     LOGIN_ERROR_WRONG_PASSWORD(2002, "Wrong password.", BAD_REQUEST),
+    ACCESS_PRIVILEGE_INSUFFICIENT(2003, "Insufficient privileges to access this resource.", FORBIDDEN),
+    AUTHORIZATION_REQUIRED(2004, "Authorization required to access this resource.", UNAUTHORIZED),
 
     /*
         Register errors.
