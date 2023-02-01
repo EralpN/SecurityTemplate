@@ -101,10 +101,11 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException exception) {
-        log.warn("Authorization required to access this resource. {}", exception.getMessage());
+        log.warn("Authorization is required to access this resource. {}", exception.getMessage());
         return createExceptionResponse(AUTHORIZATION_REQUIRED, exception);
     }
 
+    // Jwt related exceptions are handled thanks to FilterChainExceptionHandler
     @ResponseBody
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ApiResponse> handleMalformedJwtException(JwtException exception) {

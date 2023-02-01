@@ -38,7 +38,7 @@ public class JwtService {
      * <p>HOUR = 60 * 60 * 1000;</p>
      * <p>MINUTE = 60 * 1000;</p>
      */
-    private static final long timeToExpire = 432000000L; // 5days
+    private static final long timeToExpire = 86_400_000L; // 1 Day
 
     /**
      * This method generates a JWT token with the given claims and {@link UserDetails}. Expiration date is hardcoded, it can be modified if necessary.
@@ -53,7 +53,7 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + timeToExpire)) // 5days
+                .setExpiration(new Date(System.currentTimeMillis() + timeToExpire)) // Jwt duration
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
