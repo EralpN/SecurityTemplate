@@ -1,5 +1,6 @@
 package com.eralp.controllers.test;
 
+import com.eralp.configuration.locale.LocaleSelector;
 import com.eralp.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,21 +22,21 @@ public class TestController {
 
     @GetMapping
     public ResponseEntity<ApiResponse> test() {
-        return apiResponse.createOkResponse("Test successful!");
+        return apiResponse.createOkResponse(LocaleSelector.withCode("test"));
     }
 
     @GetMapping("/user")
     public ResponseEntity<ApiResponse> testUser() {
-        return apiResponse.createOkResponse("User test successful!");
+        return apiResponse.createOkResponse(LocaleSelector.withCode("test.user"));
     }
 
     @GetMapping("/manager")
     public ResponseEntity<ApiResponse> testManager() {
-        return apiResponse.createOkResponse("Manager test successful!");
+        return apiResponse.createOkResponse(LocaleSelector.withCode("test.manager"));
     }
 
     @GetMapping("/admin")
     public ResponseEntity<ApiResponse> testAdmin() {
-        return apiResponse.createOkResponse("Admin test successful!");
+        return apiResponse.createOkResponse(LocaleSelector.withCode("test.admin"));
     }
 }

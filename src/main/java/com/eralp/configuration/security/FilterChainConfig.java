@@ -1,6 +1,6 @@
-package com.eralp.configuration;
+package com.eralp.configuration.security;
 
-import com.eralp.configuration.jwt.JwtAuthFilter;
+import com.eralp.configuration.security.jwt.JwtAuthFilter;
 import com.eralp.exceptions.security.FilterChainExceptionHandler;
 import com.eralp.exceptions.security.SecurityExceptionComponent;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +23,18 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class FilterChainConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final SecurityExceptionComponent securityExceptionComponent;
     private final FilterChainExceptionHandler filterChainExceptionHandler;
+
+    private static final String[] WHITELIST = {
+            "/auth/**",
+            "/test",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
+    };
 
     /**
      * This method creates a Bean of type {@link SecurityFilterChain}.
@@ -47,7 +54,7 @@ public class SecurityConfig {
                 .csrf().disable()
                 // requests below do not need authentication.
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**", "/test", "/test/exceptions")
+                .requestMatchers(WHITELIST)
                 .permitAll()
                 // requests below require certain roles to access content. (Order matters!)
                 .requestMatchers("/test/admin", "/admin/**")

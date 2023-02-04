@@ -1,6 +1,7 @@
 package com.eralp.services;
 
-import com.eralp.configuration.jwt.JwtService;
+import com.eralp.configuration.locale.LocaleSelector;
+import com.eralp.configuration.security.jwt.JwtService;
 import com.eralp.dto.request.AuthenticationRequestDto;
 import com.eralp.dto.request.RegisterRequestDto;
 import com.eralp.dto.response.AuthenticationResponseDto;
@@ -44,7 +45,7 @@ public class AuthService {
     @Transactional
     public AuthenticationResponseDto register(RegisterRequestDto request) {
         if (authRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new UserAlreadyExistsException("Email already registered.");
+            throw new UserAlreadyExistsException(LocaleSelector.withCode("exception.authentication.register.exists"));
         }
         Auth auth = authRepository.save(Auth.builder()
                 .email(request.getEmail())
@@ -67,7 +68,7 @@ public class AuthService {
     public AuthenticationResponseDto authenticate(AuthenticationRequestDto request) {
         Optional<Auth> user = authRepository.findByEmail(request.getEmail());
         if (user.isEmpty()) {
-            throw new UsernameNotFoundException("Username does not exist.");
+            throw new UsernameNotFoundException(LocaleSelector.withCode("exception.authentication.login.not_exists"));
         }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

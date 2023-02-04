@@ -1,4 +1,4 @@
-package com.eralp.configuration.jwt;
+package com.eralp.configuration.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,4 +1,4 @@
-package com.eralp.configuration.jwt;
+package com.eralp.configuration.security.jwt;
 
 import com.eralp.entities.Auth;
 import com.eralp.repositories.AuthRepository;

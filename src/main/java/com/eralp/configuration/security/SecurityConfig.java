@@ -1,4 +1,4 @@
-package com.eralp.configuration;
+package com.eralp.configuration.security;
 
 import com.eralp.entities.Auth;
 import com.eralp.repositories.AuthRepository;
@@ -24,7 +24,7 @@ import java.util.Optional;
  */
 @Configuration
 @RequiredArgsConstructor
-public class ApplicationConfig {
+public class SecurityConfig {
     private final AuthRepository authRepository;
 
     /**

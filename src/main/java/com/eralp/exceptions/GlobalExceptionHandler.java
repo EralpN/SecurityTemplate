@@ -1,5 +1,6 @@
 package com.eralp.exceptions;
 
+import com.eralp.configuration.locale.LocaleSelector;
 import com.eralp.dto.ApiResponse;
 import com.eralp.exceptions.custom.RequestNotValidException;
 import com.eralp.exceptions.custom.UserAlreadyExistsException;
@@ -109,7 +110,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ApiResponse> handleMalformedJwtException(JwtException exception) {
-        log.warn("Invalid token. {}", exception.getMessage());
+        log.warn("Invalid token.", exception);
         return createExceptionResponse(INVALID_TOKEN_DETECTED, exception);
     }
 
@@ -125,7 +126,7 @@ public class GlobalExceptionHandler {
                         exceptionType,
                         ExceptionData.builder()
                                 .exceptionCode(exceptionType.getCode())
-                                .defaultMessage(exceptionType.getMessage())
+                                .defaultMessage(LocaleSelector.withCode(exceptionType.getLocaleMessageCode()))
                                 .errorMessage(exception.getMessage())
                                 .build()
                 );
