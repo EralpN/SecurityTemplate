@@ -8,6 +8,7 @@ import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -44,6 +45,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleRuntimeException(RuntimeException exception) {
         log.error("Unhandled runtime error occurred!", exception);
         return createExceptionResponse(UNEXPECTED_ERROR, exception);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException exception) {
+        log.warn("Invalid json. {}", exception.getMessage());
+        return createExceptionResponse(BAD_REQUEST_ERROR, exception);
     }
 
     @ResponseBody
