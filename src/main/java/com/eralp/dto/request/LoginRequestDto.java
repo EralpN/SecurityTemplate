@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuthenticationRequestDto {
+public class LoginRequestDto {
     @Size(min = 3, message = "{validation.email.size}")
     @Email(message = "{validation.email.valid}")
     @NotBlank(message = "{validation.email.blank}")

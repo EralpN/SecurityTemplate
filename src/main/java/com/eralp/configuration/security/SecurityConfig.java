@@ -1,7 +1,7 @@
 package com.eralp.configuration.security;
 
-import com.eralp.entities.Auth;
-import com.eralp.repositories.AuthRepository;
+import com.eralp.entities.User;
+import com.eralp.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,10 +25,10 @@ import java.util.Optional;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final AuthRepository authRepository;
+    private final UserRepository userRepository;
 
     /**
-     * Creates a {@link UserDetailsService} bean that retrieves a {@link Auth} object from the {@link AuthRepository} by email.
+     * Creates a {@link UserDetailsService} bean that retrieves a {@link User} object from the {@link UserRepository} by email.
      * If the user is not found in the repository, a {@link UsernameNotFoundException} is thrown.
      *
      * @return a {@link UserDetailsService} bean that retrieves user details from the database by email
@@ -38,7 +38,7 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         return username -> {
             // In this project email is used as the username on authentication.
-            Optional<Auth> user = authRepository.findByEmail(username);
+            Optional<User> user = userRepository.findActiveUserByEmail(username);
             if (user.isPresent()) {
                 return user.get();
             } else {

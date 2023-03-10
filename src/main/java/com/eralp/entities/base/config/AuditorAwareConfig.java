@@ -21,7 +21,7 @@ public class AuditorAwareConfig {
      * @author Eralp Nitelik
      */
     @Bean
-    public AuditorAware<Long> auditorAware() {
+    public AuditorAware<String> auditorAware() {
         return new CustomAuditorAware();
     }
 }

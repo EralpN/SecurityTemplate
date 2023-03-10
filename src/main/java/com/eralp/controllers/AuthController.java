@@ -1,7 +1,7 @@
 package com.eralp.controllers;
 
 import com.eralp.dto.ApiResponse;
-import com.eralp.dto.request.AuthenticationRequestDto;
+import com.eralp.dto.request.LoginRequestDto;
 import com.eralp.dto.request.RegisterRequestDto;
 import com.eralp.dto.response.AuthenticationResponseDto;
 import com.eralp.exceptions.validators.DtoValidator;
@@ -42,13 +42,13 @@ public class AuthController {
     /**
      * This method handles user authentication requests.
      *
-     * @param request The {@link AuthenticationRequestDto} object containing the user's authentication information
+     * @param request The {@link LoginRequestDto} object containing the user's authentication information
      * @return an {@link ApiResponse} with an {@link AuthenticationResponseDto} object that contains the token inside {@link ResponseEntity}
      * @author Eralp Nitelik
      */
-    @PostMapping("/authenticate")
-    public ResponseEntity<ApiResponse> authenticate(@RequestBody AuthenticationRequestDto request) {
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse> login(@RequestBody LoginRequestDto request) {
         validator.validate(request);
-        return apiResponse.createOkResponse(authService.authenticate(request));
+        return apiResponse.createOkResponse(authService.login(request));
     }
 }

@@ -10,9 +10,11 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 /**
  * This class is used to configure the security settings of the application.
@@ -28,6 +30,7 @@ public class FilterChainConfig {
     private final AuthenticationProvider authenticationProvider;
     private final SecurityExceptionComponent securityExceptionComponent;
     private final FilterChainExceptionHandler filterChainExceptionHandler;
+    private final LogoutHandler logoutHandler;
 
     private static final String[] WHITELIST = {
             "/auth/**",
@@ -35,6 +38,8 @@ public class FilterChainConfig {
             "/swagger-ui/**",
             "/v3/api-docs/**"
     };
+
+    private static final String LOGOUT_URL = "/auth/logout";
 
     /**
      * This method creates a Bean of type {@link SecurityFilterChain}.
@@ -80,7 +85,11 @@ public class FilterChainConfig {
                 // adds an exception handling filter at a higher level
                 .addFilterBefore(filterChainExceptionHandler, LogoutFilter.class)
                 // to execute our custom filter before UsernamePasswordAuthenticationFilter, this allows us to set securityContext with our filter.
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .logout()
+                .logoutUrl(LOGOUT_URL)
+                .addLogoutHandler(logoutHandler)
+                .logoutSuccessHandler(((request, response, authentication) -> SecurityContextHolder.clearContext()));
         return httpSecurity.build();
     }
 }

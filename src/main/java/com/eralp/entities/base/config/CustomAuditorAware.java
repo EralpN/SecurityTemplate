@@ -13,23 +13,23 @@ import java.util.Optional;
  *
  * @author Eralp Nitelik
  */
-public class CustomAuditorAware implements AuditorAware<Long> {
+public class CustomAuditorAware implements AuditorAware<String> {
     /**
-     * Returns the current auditor. If the auditor is anonymous returns 0 as id.
+     * Returns the current auditor id. If there is no authenticated user returns "anonymous" instead of id.
      *
      * @return an {@link Optional} of the current auditor's id
      * @author Eralp Nitelik
      */
     @Override
     @NonNull
-    public Optional<Long> getCurrentAuditor() {
+    public Optional<String> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return Optional.empty();
         }
         if (!"anonymousUser".equals(authentication.getPrincipal())) {
-            return Optional.of((Long) authentication.getCredentials());
+            return Optional.of((String) authentication.getCredentials());
         }
-        return Optional.of(0L);
+        return Optional.of("anonymous");
     }
 }

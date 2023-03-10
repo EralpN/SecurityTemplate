@@ -9,6 +9,7 @@
 * Requests and responses are received and sent in DTO's (data transfer object) entities. As it should be.
 * It utilizes REST API and OpenAPI(Swagger) implementation in order to test with an easy interface.
 * It utilizes JWT token as a Bearer token to authorize incoming requests.
+* There is a built-in logout functionality to inactivate tokens.
 * It utilizes i18n. Each request accepts a Accept-Language header to determine response language.
 
 ### Dependencies

@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ApiResponse> handleRuntimeException(UsernameNotFoundException exception) {
-        log.warn("Auth does not exist or deleted. {}", exception.getMessage());
+        log.warn("User does not exist or deleted. {}", exception.getMessage());
         return createExceptionResponse(LOGIN_ERROR_USERNAME_DOES_NOT_EXIST, exception);
     }
 

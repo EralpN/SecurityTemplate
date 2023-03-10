@@ -26,8 +26,8 @@ import java.util.Date;
 @MappedSuperclass
 public abstract class BaseEntity {
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
@@ -38,15 +38,15 @@ public abstract class BaseEntity {
     private Date updatedAt;
 
     /*
-        Saves as 0 if auditor is anonymous.
+        Saves as "anonymous" if auditor is anonymous. (Not logged in).
      */
     @CreatedBy
     @Column(name = "created_by")
-    private Long createdBy;
+    private String createdBy;
 
     @LastModifiedBy
     @Column(name = "updated_by")
-    private Long updatedBy;
+    private String updatedBy;
 
     @Enumerated(EnumType.STRING)
     @Nonnull

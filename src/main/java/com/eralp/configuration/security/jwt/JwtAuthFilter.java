@@ -1,7 +1,8 @@
 package com.eralp.configuration.security.jwt;
 
-import com.eralp.entities.Auth;
-import com.eralp.repositories.AuthRepository;
+import com.eralp.entities.User;
+import com.eralp.repositories.TokenRepository;
+import com.eralp.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +28,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    private final AuthRepository authRepository;
+    private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
 
     /**
      * This method filters incoming HttpServletRequests and validates the JWT token in the Authorization header.
@@ -57,10 +59,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         jwtToken = authHeader.substring(7);
         username = jwtService.extractUsername(jwtToken);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            Optional<Auth> userDetails = this.authRepository.findByEmail(username);
-            if (userDetails.isPresent() && jwtService.isTokenValid(jwtToken, userDetails.get())) {
+            Optional<User> userDetails = this.userRepository.findActiveUserByEmail(username);
+            // Did the user create a new token?, Did the user logout?
+            boolean isTokenUsable = tokenRepository.findByToken(jwtToken)
+                    .map(token -> !token.isLoggedOut() && !token.isRevoked())
+                    .orElse(false);
+            if (isTokenUsable && userDetails.isPresent() && jwtService.isTokenValid(jwtToken, userDetails.get())) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
+                        // Sets id as credentials for the ease of use.
                         userDetails.get().getId(),
                         userDetails.get().getAuthorities()
                 );

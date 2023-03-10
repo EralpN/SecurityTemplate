@@ -10,11 +10,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This is an entity class that represents a {@link Auth} in the system.
+ * This is an entity class that represents a {@link User} in the system.
  * It extends {@link BaseEntity} and implements {@link UserDetails} for Spring Security.
  * It contains fields which are required for the authentication of the user.
  * It also provides implementation for the {@link UserDetails} interface for authentication and authorization.
@@ -27,16 +28,21 @@ import java.util.stream.Collectors;
 @Setter
 @Entity
 @Builder
-@Table(name = "auths")
-public class Auth extends BaseEntity implements UserDetails {
+@Table(name = "users")
+public class User extends BaseEntity implements UserDetails {
 
     @Column(nullable = false, unique = true)
     private String email;
+
     @Column(nullable = false)
     private String password;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
+
+    @OneToMany(mappedBy = "user")
+    private List<Token> tokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
