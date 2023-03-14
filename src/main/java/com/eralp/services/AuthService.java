@@ -4,7 +4,8 @@ import com.eralp.configuration.locale.LocaleSelector;
 import com.eralp.configuration.security.jwt.JwtService;
 import com.eralp.dto.request.LoginRequestDto;
 import com.eralp.dto.request.RegisterRequestDto;
-import com.eralp.dto.response.AuthenticationResponseDto;
+import com.eralp.dto.response.LoginResponseDto;
+import com.eralp.dto.response.RegisterResponseDto;
 import com.eralp.entities.Token;
 import com.eralp.entities.User;
 import com.eralp.entities.enums.Role;
@@ -43,11 +44,11 @@ public class AuthService {
      * Registers a new user.
      *
      * @param request {@link RegisterRequestDto} object containing the information
-     * @return {@link AuthenticationResponseDto} object with a generated token for the newly registered user
+     * @return {@link LoginResponseDto} object with a generated token for the newly registered user
      * @author Eralp Nitelik
      */
     @Transactional
-    public AuthenticationResponseDto register(RegisterRequestDto request) {
+    public RegisterResponseDto register(RegisterRequestDto request) {
         if (userRepository.findActiveUserByEmail(request.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException(LocaleSelector.withCode("exception.authentication.register.exists"));
         }
@@ -57,9 +58,8 @@ public class AuthService {
                 .roles(Set.of(Role.USER)) // Role is set to user upon registration!
                 .build());
         log.info("{} registered.", user.getUsername());
-        String jwtToken = saveAndGetJwtToken(user);
-        return AuthenticationResponseDto.builder()
-                .token(jwtToken)
+        return RegisterResponseDto.builder()
+                .userId(user.getId())
                 .build();
     }
 
@@ -67,10 +67,10 @@ public class AuthService {
      * Authenticate based on information. (Login)
      *
      * @param request {@link LoginRequestDto} object containing the login information
-     * @return {@link AuthenticationResponseDto} object with a generated token
+     * @return {@link LoginResponseDto} object with a generated token
      * @author Eralp Nitelik
      */
-    public AuthenticationResponseDto login(LoginRequestDto request) {
+    public LoginResponseDto login(LoginRequestDto request) {
         User user = userRepository.findActiveUserByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException(LocaleSelector.withCode("exception.authentication.login.not_exists")));
         authenticationManager.authenticate(
@@ -82,7 +82,7 @@ public class AuthService {
         revokeAllUserTokens(user);
         String jwtToken = saveAndGetJwtToken(user);
         log.info("{} authenticated.", user.getUsername());
-        return AuthenticationResponseDto.builder()
+        return LoginResponseDto.builder()
                 .token(jwtToken)
                 .build();
     }

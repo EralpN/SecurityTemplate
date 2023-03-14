@@ -2,7 +2,6 @@ package com.eralp.exceptions;
 
 import com.eralp.configuration.locale.LocaleSelector;
 import com.eralp.dto.ApiResponse;
-import com.eralp.exceptions.custom.RequestNotValidException;
 import com.eralp.exceptions.custom.UserAlreadyExistsException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +13,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.stream.Collectors;
 
 import static com.eralp.exceptions.ExceptionType.*;
 
@@ -37,81 +39,82 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<ApiResponse> handleAllExceptions(Exception exception) {
         log.error("Unhandled error occurred!", exception);
-        return createExceptionResponse(UNEXPECTED_ERROR, exception);
+        return createExceptionResponse(UNEXPECTED_ERROR, exception.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse> handleRuntimeException(RuntimeException exception) {
         log.error("Unhandled runtime error occurred!", exception);
-        return createExceptionResponse(UNEXPECTED_ERROR, exception);
+        return createExceptionResponse(UNEXPECTED_ERROR, exception.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException exception) {
         log.warn("Invalid json. {}", exception.getMessage());
-        return createExceptionResponse(BAD_REQUEST_ERROR, exception);
+        return createExceptionResponse(BAD_REQUEST_ERROR, exception.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ApiResponse> handleRuntimeException(UsernameNotFoundException exception) {
         log.warn("User does not exist or deleted. {}", exception.getMessage());
-        return createExceptionResponse(LOGIN_ERROR_USERNAME_DOES_NOT_EXIST, exception);
+        return createExceptionResponse(LOGIN_ERROR_USERNAME_DOES_NOT_EXIST, exception.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse> handleBadCredentialsException(BadCredentialsException exception) {
         log.warn("Authentication information does not match. {}", exception.getMessage());
-        return createExceptionResponse(LOGIN_ERROR_WRONG_PASSWORD, exception);
+        return createExceptionResponse(LOGIN_ERROR_WRONG_PASSWORD, exception.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ApiResponse> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
         log.warn("Unique key already exists on database. {}", exception.getMessage());
-        return createExceptionResponse(REGISTER_ERROR_DATA_EXISTS, exception);
+        return createExceptionResponse(REGISTER_ERROR_DATA_EXISTS, exception.getMessage());
     }
 
-    // default validation exception
+    // validation exception
     @ResponseBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
-        log.warn("Incoming data validation failed. {}", exception.getMessage());
-        return createExceptionResponse(DATA_NOT_VALID, exception);
+        String validationErrors = exception
+                .getBindingResult()
+                .getAllErrors()
+                .stream()
+                .map(ObjectError::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+        log.warn("Incoming data validation failed. {}", validationErrors + " *** " + exception.getMessage());
+        return createExceptionResponse(DATA_NOT_VALID, validationErrors);
     }
 
-    // custom validation exception
-    @ResponseBody
-    @ExceptionHandler(RequestNotValidException.class)
-    public ResponseEntity<ApiResponse> handleRequestNotValidException(RequestNotValidException exception) {
-        log.warn("Incoming data validation failed. {}", exception.getMessage());
-        return createExceptionResponse(DATA_NOT_VALID, exception);
-    }
-
-    // security exceptions can be handled here thanks to
-    // HandlerExceptionResolver being injected to AuthenticationEntryPoint and AccessDeniedHandler
+    /*
+        Security related exceptions can be handled here thanks to
+        HandlerExceptionResolver being injected to
+        AuthenticationEntryPoint and AccessDeniedHandler
+     */
     @ResponseBody
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiResponse> handleAllAuthenticationException(AuthenticationException exception) {
         log.error("Insufficient privileges to access this resource.", exception);
-        return createExceptionResponse(UNEXPECTED_AUTHENTICATION_ERROR, exception);
+        return createExceptionResponse(UNEXPECTED_AUTHENTICATION_ERROR, exception.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler(InsufficientAuthenticationException.class)
     public ResponseEntity<ApiResponse> handleInsufficientAuthenticationException(InsufficientAuthenticationException exception) {
         log.warn("Insufficient privileges to access this resource. {}", exception.getMessage());
-        return createExceptionResponse(ACCESS_PRIVILEGE_INSUFFICIENT, exception);
+        return createExceptionResponse(ACCESS_PRIVILEGE_INSUFFICIENT, exception.getMessage());
     }
 
     @ResponseBody
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse> handleAccessDeniedException(AccessDeniedException exception) {
         log.warn("Authorization is required to access this resource. {}", exception.getMessage());
-        return createExceptionResponse(AUTHORIZATION_REQUIRED, exception);
+        return createExceptionResponse(AUTHORIZATION_REQUIRED, exception.getMessage());
     }
 
     // Jwt related exceptions are handled thanks to FilterChainExceptionHandler
@@ -119,7 +122,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ApiResponse> handleMalformedJwtException(JwtException exception) {
         log.warn("Invalid token.", exception);
-        return createExceptionResponse(INVALID_TOKEN_DETECTED, exception);
+        return createExceptionResponse(INVALID_TOKEN_DETECTED, exception.getMessage());
     }
 
     /**
@@ -128,14 +131,14 @@ public class GlobalExceptionHandler {
      * @param exceptionType the predefined exception
      * @return A new {@link ApiResponse} with {@link ExceptionData} as its error field
      */
-    private ResponseEntity<ApiResponse> createExceptionResponse(ExceptionType exceptionType, Exception exception) {
+    private ResponseEntity<ApiResponse> createExceptionResponse(ExceptionType exceptionType, String exceptionMessage) {
         return apiResponse
                 .createErrorResponse(
                         exceptionType,
                         ExceptionData.builder()
                                 .exceptionCode(exceptionType.getCode())
                                 .defaultMessage(LocaleSelector.withCode(exceptionType.getLocaleMessageCode()))
-                                .errorMessage(exception.getMessage())
+                                .errorMessage(exceptionMessage)
                                 .build()
                 );
     }

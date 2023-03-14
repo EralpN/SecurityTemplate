@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * The class {@link AuthenticationResponseDto} is used to return a token to the client after a successful authentication.
+ * The class {@link RegisterResponseDto} is used to return the unique id to the client after a successful registration.
  *
  * @author Eralp Nitelik
  */
@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuthenticationResponseDto {
-    private String token;
+public class RegisterResponseDto {
+    private String userId;
 }
